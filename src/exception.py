@@ -1,5 +1,8 @@
 import sys
-from typing import Self
+from typing import TypeVar
+
+Self = TypeVar("Self")
+
 from src.logger import logging
 
 def error_message_detil(error,error_detail:sys):
