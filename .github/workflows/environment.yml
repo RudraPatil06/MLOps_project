@@ -24,4 +24,5 @@ jobs:
 
     - name: Run Training Pipeline
       run: |
-        python src/components/model_trainer.py
+         python -m src.components.model_trainer
+
