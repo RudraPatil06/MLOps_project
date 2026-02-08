@@ -2,47 +2,55 @@ pipeline {
     agent any
 
     environment {
-        PYTHON_311 = "C:\\Program Files\\Python311\\python.exe"
-        VENV_DIR = "venv"
+        PYTHON = "C:\\Program Files\\Python311\\python.exe"
+        VENV = "venv"
     }
 
     stages {
-        stage('Setup Environment') {
+
+        stage('Verify Python') {
             steps {
-                bat '''
-                echo Using Python:
-                "%PYTHON_311%" --version
+                bat """
+                "%PYTHON%" --version
+                """
+            }
+        }
 
-                if not exist %VENV_DIR% (
-                    "%PYTHON_311%" -m venv %VENV_DIR%
-                )
+        stage('Setup Virtual Environment') {
+            steps {
+                bat """
+                "%PYTHON%" -m venv %VENV%
+                call %VENV%\\Scripts\\activate
+                python -m pip install --upgrade pip setuptools wheel
+                """
+            }
+        }
 
-                %VENV_DIR%\\Scripts\\python -m pip install --upgrade pip setuptools wheel
-                %VENV_DIR%\\Scripts\\pip install -r requirements.txt
-                '''
+        stage('Install Dependencies') {
+            steps {
+                bat """
+                call %VENV%\\Scripts\\activate
+                pip install -r requirements.txt
+                """
             }
         }
 
         stage('Train Model') {
             steps {
-                bat '''
-                %VENV_DIR%\\Scripts\\python -m src.pipeline.train_pipeline
-                '''
+                bat """
+                call %VENV%\\Scripts\\activate
+                python -m src.pipeline.train_pipeline
+                """
             }
         }
 
         stage('Predict') {
             steps {
-                bat '''
-                %VENV_DIR%\\Scripts\\python -m src.pipeline.predict_pipeline
-                '''
+                bat """
+                call %VENV%\\Scripts\\activate
+                python -m src.pipeline.predict_pipeline
+                """
             }
-        }
-    }
-
-    post {
-        always {
-            archiveArtifacts artifacts: 'artifacts/**, logs/**', fingerprint: true
         }
     }
 }
