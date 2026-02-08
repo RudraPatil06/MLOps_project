@@ -2,17 +2,19 @@ pipeline {
     agent any
 
     environment {
+        PYTHON_311 = "C:\\Program Files\\Python311\\python.exe"
         VENV_DIR = "venv"
     }
 
     stages {
-        stage('Setup & Install') {
+        stage('Setup Environment') {
             steps {
                 bat '''
-                echo Starting MLOps pipeline
+                echo Using Python:
+                "%PYTHON_311%" --version
 
                 if not exist %VENV_DIR% (
-                    py -3.11 -m venv %VENV_DIR%
+                    "%PYTHON_311%" -m venv %VENV_DIR%
                 )
 
                 %VENV_DIR%\\Scripts\\python -m pip install --upgrade pip setuptools wheel
