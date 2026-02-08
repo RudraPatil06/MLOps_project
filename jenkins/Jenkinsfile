@@ -1,0 +1,46 @@
+pipeline {
+    agent any
+
+    environment {
+        VENV_DIR = "venv"
+    }
+
+    stages {
+        stage('Setup & Install') {
+            steps {
+                bat '''
+                echo Starting MLOps pipeline
+
+                if not exist %VENV_DIR% (
+                    py -3.11 -m venv %VENV_DIR%
+                )
+
+                %VENV_DIR%\\Scripts\\python -m pip install --upgrade pip setuptools wheel
+                %VENV_DIR%\\Scripts\\pip install -r requirements.txt
+                '''
+            }
+        }
+
+        stage('Train Model') {
+            steps {
+                bat '''
+                %VENV_DIR%\\Scripts\\python -m src.pipeline.train_pipeline
+                '''
+            }
+        }
+
+        stage('Predict') {
+            steps {
+                bat '''
+                %VENV_DIR%\\Scripts\\python -m src.pipeline.predict_pipeline
+                '''
+            }
+        }
+    }
+
+    post {
+        always {
+            archiveArtifacts artifacts: 'artifacts/**, logs/**', fingerprint: true
+        }
+    }
+}
