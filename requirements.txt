@@ -6,4 +6,8 @@ scikit-learn
 catboost==1.2.8
 xgboost
 dill
+fastapi
+uvicorn[standard]
+pydantic
+joblib
 #-e .
